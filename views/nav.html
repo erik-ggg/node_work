@@ -1,0 +1,80 @@
+<!-- nav.html -->
+<nav class="navbar navbar-inverse" xmlns:sec="http://www.w3.org/1999/xhtml" xmlns:th="http://www.w3.org/1999/xhtml">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" 
+                data-toggle="collapse" data-target="#myNavbar">
+                <span class="icon-bar"></span> 
+                <span class="icon-bar"></span> 
+                <span class="icon-bar"></span>
+            </button>
+            <!-- <img src="/img/student-48.png" alt="logo" /> -->
+        </div>
+        <div class="collapse navbar-collapse" id="myNavbar"  >
+            <!-- <ul class="nav navbar-nav" sec:authorize="isAuthenticated()">
+                <li><a href="/home" th:text="#{nav.home}"></a></li>
+                <li sec:authorize="hasRole('ROLE_STUDENT')"><a href="/requests/list" th:text="#{nav.friend.requests}"></a></li>
+                <li sec:authorize="hasRole('ROLE_STUDENT')"><a href="/friends" th:text="#{nav.seefriends}"></a></li>
+                <li id="users-menu" class="dropdown" sec:authorize="hasRole('ROLE_STUDENT')">
+                    <a class="dropdown-toggle" data-toggle="dropdown" href="#" th:text="#{nav.publications.title.text}"><span class="caret"></span></a>
+                    <ul class="dropdown-menu">
+                        <li><a href="/publications/add" th:text="#{nav.publications.add.text}"></a></li>
+                        <li><a href="/publications/list" th:text="#{nav.publications.user.text}"></a></li>
+                    </ul>
+                </li>
+                <li sec:authorize="hasRole('ROLE_ADMIN')"><a href="/admin/list" th:text="#{nav.admin.users}"></a></li>
+            </ul> -->
+            <ul class="nav navbar-nav navbar-right">
+               <!-- <li class="dropdown">
+                   <a id="btnLanguage" href="
+                       #" class="dropdown-toggle" data-toggle="dropdown" role="button"
+                       aria-haspopup="true" aria-expanded="false"> <span
+                           th:text="#{language.change}"></span> <span class="caret"></span>
+                   </a>
+                   <ul id="languageDropdownMenuButton" class="dropdown-menu">
+                       <li>
+                           <a id="btnEnglish" value="EN"> <img
+                               th:src="@{/img/if_uk_flag.png}"
+                               style="border: 0; float: left; margin-right: 15px" /> <span
+                               th:text="#{language.en}"></span>
+                           </a>
+                       </li>
+                       <li>
+                           <a id="btnSpanish" value="ES"> <img
+                               th:src="@{/img/if_spain_flag.png}"
+                               style="border: 0; float: left; margin-right: 15px" /> <span
+                               th:text="#{language.es}"></span>
+                           </a>
+                       </li>
+                   </ul>
+                </li>
+                <li sec:authorize="hasRole('ROLE_STUDENT')">
+                    <form class="navbar-form" action="/home/search">
+                        <div class="form-group">
+                            <input name="searchText" type="text" class="form-control" size="50"
+                                   th:placeholder="#{placeholder.search}">
+                        </div>
+                        <button type="submit"><i class="fa fa-search"></i></button>
+                    </form>
+                </li>
+                <li sec:authorize="!isAuthenticated()">
+                    <a href="/signup" th:text="#{signup.message}">
+                        <span class="glyphicon glyphicon-user"></span>
+                        Registrate
+                    </a>
+                </li>
+                <li sec:authorize="!isAuthenticated()">
+                    <a href="/login" th:text="#{login.message}">
+                        <span class="glyphicon glyphicon-log-in"></span>
+                        Identifícate
+                    </a>
+                </li>
+                <li sec:authorize="isAuthenticated()">
+                    <a href="/logout" th:text="#{nav.disconnect}">
+                        <span class="glyphicon glyphicon-log-out"></span>
+                    </a>
+                </li> -->
+            </ul>
+        </div>
+    </div>
+</nav>

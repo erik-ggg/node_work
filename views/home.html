@@ -1,0 +1,48 @@
+{% extends "base.html" %} 
+{% block contenido_principal %}
+	<div>
+		<table class="table table-hover">
+			<thead>
+				<tr>
+					<th>User</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for user in users %}
+				<tr>
+					<td>
+						{{ user.email }}
+					</td>
+					<td>
+						<button class="btn btn-primary"></button>
+					</td>
+				</tr>
+				{% endfor %}
+			</tbody>			
+		</table>
+	</div>
+
+	<ul class="pagination">
+        <!--Primera -->
+        <li class="page-item">
+            <a class="page-link"href="/tienda?pg=1">Primera</a>
+        </li>
+        <!--Anterior (si la hay ) -->
+        {% if pgCurrent-1 >= 1 %}
+        <li class="page-item">
+            <a class="page-link"href="/tienda?pg={{ pgCurrent -1 }}">{{ pgCurrent -1 }}</a>
+        </li>{% endif %}<!--Actual  --><li class="page-item active">
+            <a class="page-link"href="/tienda?pg={{ pgCurrent }}">{{ pgCurrent }}</a>
+        </li>
+        <!--Siguiente (si la hay)  -->
+        {% if pgCurrent+1 <= pgLast %}
+        <li class="page-item">
+            <a class="page-link"href="/tienda?pg={{ pgCurrent+1 }}">{{ pgCurrent+1 }}</a>
+        </li>
+        {% endif %}
+        <!--Última -->
+        <li class="page-item">
+            <a class="page-link"href="/tienda?pg={{ pgLast }}">Última</a>
+        </li>
+    </ul>
+{% endblock %}
