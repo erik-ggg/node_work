@@ -50,8 +50,6 @@ module.exports = function(app, swig, dbManager) {
         res.send(response)
     });
     app.post("/register", function (req, res) {
-        console.log(req.body.password)
-        console.log(req.body.rpassword)
         if (req.body.password == req.body.rpassword) {
             var criterio = {
                 email : req.body.email
@@ -72,6 +70,7 @@ module.exports = function(app, swig, dbManager) {
                             console.log("Error adding user")
                         } else {
                             console.log("User added")
+                            req.session.user = req.body.email
                             // res.redirect("/identificarse?mensaje=Nuevo usuario registrado")
                         }
                     })
@@ -118,7 +117,7 @@ module.exports = function(app, swig, dbManager) {
         if (req.query.pg == null) {
             pg = 1
         }   
-        dbManager.getUsersPg({}, pg, function(users, total) {
+        dbManager.getUsersPg({ email: { $ne: req.session.user } }, pg, function(users, total) {
             if (users == null) {
                 res.send("Error while retrieving the users") 
             } else {
