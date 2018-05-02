@@ -38,7 +38,8 @@ module.exports = {
                         console.log("error al buscar")
                         functionCallback(null)
                     } else if (result.length == 0) {
-                        console.log("sin datos")
+                        console.log("sin datos 1")
+                        functionCallback(result)
                     } else {
                         console.log("encontro usuarios")
                         functionCallback(result)
@@ -63,7 +64,7 @@ module.exports = {
                             console.log("error al buscar")
                             functionCallback(null)
                         } else if (result.length == 0) {
-                            console.log("sin datos")
+                            console.log("sin datos 2")
                         } else {
                             console.log("encontro usuarios")
                             functionCallback(result, count)
@@ -74,7 +75,7 @@ module.exports = {
             }
         })
     },
-    sendFriendRequest : function(request) {
+    sendFriendRequest : function(request, functionCallback) {
         this.mongo.MongoClient.connect(this.app.get('db'), function(err, db) {
             if (err) {
 
@@ -92,22 +93,14 @@ module.exports = {
             }
         })
     },
-    acceptFriendRequest : function(friends) {
+    acceptFriendRequest : function(request) {
         this.mongo.MongoClient.connect(this.app.get('db'), function(err, db) {
             if (err) {
 
             } else {
                 //TODO: eliminamos la peticion ya que son amigos
                 var collection = db.collection('friends')
-                collection.insert(friends, function(err, result) {
-                    if (err) {
-                        console.log("Error " + err)
-                        functionCallback(null)
-                    } else {
-                        functionCallback(result.ops[0]._id)
-                    }
-                    db.close()
-                })
+                collection.insert(request)
             }
         })
     },
@@ -121,7 +114,8 @@ module.exports = {
                         console.log("error al buscar")
                         functionCallback(null)
                     } else if (result.length == 0) {
-                        console.log("sin datos")
+                        console.log("sin datos 3")
+                        functionCallback(result)
                     } else {
                         console.log("encontro usuarios")
                         functionCallback(result)
@@ -141,7 +135,7 @@ module.exports = {
                         console.log("error al buscar")
                         functionCallback(null)
                     } else if (result.length == 0) {
-                        console.log("sin datos")
+                        console.log("sin datos 4")
                     } else {
                         console.log("encontro usuarios")
                         functionCallback(result)
@@ -161,13 +155,23 @@ module.exports = {
                         console.log("error al buscar")
                         functionCallback(null)
                     } else if (result.length == 0) {
-                        console.log("sin datos")
+                        console.log("sin datos 5")                        
+                        functionCallback(result)
                     } else {
                         console.log("encontro usuarios")
                         functionCallback(result)
                     }
                     db.close()
                 })
+            }
+        })
+    },
+    removeFriendRequestReceived : function(request) {
+        this.mongo.MongoClient.connect(this.app.get('db'), function(err, db) {
+            if (err) {
+            } else {
+                var collection = db.collection('requests')
+                collection.remove(request)
             }
         })
     }

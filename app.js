@@ -34,9 +34,37 @@ routerLoggedUser.use(function(req, res, next) {
     }
 })
 
+var routerUsuarioToken = express.Router()
+routerUsuarioToken.use(function(req, res, next) {
+    var token = req.body.token || req.query.token || req.headers["token"]
+    if (token != null) {
+        jwt.verify(token, "secreto", function(err, infoToken) {
+            if (err || (Date.now()/1000 - infoToken.tiempo) > 240) {
+                res.status(403)
+                res.json({
+                    acceso: false,
+                    error: "Token invalido o caducado"
+                })
+                return
+            } else {
+                res.usuario = infoToken.usuario
+                next()
+            }
+        })
+    } else {
+        res.status(403)
+        res.json({
+            acceso: false,
+            mensaje: "No hay token"
+        })
+    }
+})
+
 app.use("/home", routerLoggedUser)
+app.use("/requests", routerLoggedUser)
 
 require("./routes/rusuarios")(app, swig, dbManager)
+require("./routes/rapiusuarios")(app, dbManager)
 
 app.listen(app.get('port'), function() {
     console.log("Servidor activo en " + app.get("port"))

@@ -1,6 +1,9 @@
 {% extends "base.html" %} 
 {% block contenido_principal %}
 	<div>
+        <a class="btn btn-primary" href="/requests">Request received</a>
+        <a class="btn btn-primary" href="/friends">Friends</a>
+        <a class="btn btn-primary" href="/logout">Log out</a>
 		<table class="table table-hover">
 			<thead>
 				<tr>
@@ -14,7 +17,8 @@
 						{{ user.email }}
 					</td>
 					<td>
-						<button class="btn btn-primary"></button>
+                            <!-- <a th:id="${user.id}" th:if="${user.status == 'SEND FRIEND REQUEST'}" th:href="${'/home/' + user.id}" class="btn btn-primary" th:text="#{home.send.request.text}"></a> -->
+						<a class="btn btn-primary" href="/home/{{ user.email.toString() }}">Send friend request</a>
 					</td>
 				</tr>
 				{% endfor %}
