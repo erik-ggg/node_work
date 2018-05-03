@@ -65,6 +65,7 @@ module.exports = {
                             functionCallback(null)
                         } else if (result.length == 0) {
                             console.log("sin datos 2")
+                            functionCallback(result, count)
                         } else {
                             console.log("encontro usuarios")
                             functionCallback(result, count)

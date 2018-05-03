@@ -51,14 +51,15 @@ module.exports = function(app, swig, dbManager) {
     });
     app.post("/register", function (req, res) {
         if (req.body.password == req.body.rpassword) {
-            var criterio = {
+            var criteria = {
                 email : req.body.email
             }
-            dbManager.getUsers(criterio, function(usuarios) {
+            dbManager.getUsers(criteria, function(usuarios) {
                 if (usuarios == null || usuarios.length == 0) {
                     var secure = app.get("crypto").createHmac('sha256', app.get('clave'))
                     .update(req.body.password).digest('hex')
                     var user = {
+                        name : req.body.name,
                         email : req.body.email,
                         password : secure
                     }
@@ -91,12 +92,12 @@ module.exports = function(app, swig, dbManager) {
     app.post("/login", function (req, res) {
         var seguro = app.get("crypto").createHmac('sha256', app.get('clave'))
                 .update(req.body.password).digest('hex')
-        var criterio = {
+        var criteria = {
             email : req.body.email,
             password : seguro
         }
 
-        dbManager.getUsers(criterio, function(users) {
+        dbManager.getUsers(criteria, function(users) {
             if (users == null || users.length == 0) {
                 // req.session.usuario = null
                 // res.redirect("/identificarse" + "?mensaje=Email o password incorrecto" + "&tipoMensaje=alert-danger") 
@@ -113,11 +114,26 @@ module.exports = function(app, swig, dbManager) {
         })
     });
     app.get("/home", function (req, res) {
+        let criteria = { 
+            email: { $ne: req.session.user } 
+        }
+        let search_param = req.query.semail
+        if (search_param != null && search_param != undefined && search_param != "") {
+            criteria = { 
+                $and: [
+                    { email: { $ne: req.session.user } },
+                    { $or: [
+                        { email: { $regex : ".*" + search_param + ".*" } },
+                        { name: { $regex : ".*" + search_param + ".*" } 
+                    }] 
+                }]                
+            }
+        }
         var pg = parseInt(req.query.pg)
         if (req.query.pg == null) {
             pg = 1
         }   
-        dbManager.getUsersPg({ email: { $ne: req.session.user } }, pg, function(users, total) {
+        dbManager.getUsersPg(criteria, pg, function(users, total) {
             if (users == null) {
                 res.send("Error while retrieving the users") 
             } else {
