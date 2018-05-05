@@ -36,8 +36,7 @@
 						{{ user.email }}
 					</td>
 					<td>
-                            <!-- <a th:id="${user.id}" th:if="${user.status == 'SEND FRIEND REQUEST'}" th:href="${'/home/' + user.id}" class="btn btn-primary" th:text="#{home.send.request.text}"></a> -->
-						<a class="btn btn-primary" href="/home/{{ user.email.toString() }}">Send friend request</a>
+						<a class="btn btn-primary" href="/home/{{ user.email.toString()}}">Send friend request</a>
 					</td>
 				</tr>
 				{% endfor %}

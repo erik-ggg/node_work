@@ -62,6 +62,7 @@ routerUsuarioToken.use(function(req, res, next) {
 
 app.use("/home", routerLoggedUser)
 app.use("/requests", routerLoggedUser)
+app.use("/api/friends", routerUsuarioToken)
 
 require("./routes/rusuarios")(app, swig, dbManager)
 require("./routes/rapiusuarios")(app, dbManager)

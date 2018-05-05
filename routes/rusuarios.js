@@ -1,18 +1,47 @@
 module.exports = function(app, swig, dbManager) {
     app.get("/friends", function(req, res) {
-        dbManager.getFriends( { $or: [ { source: req.session.user }, { target: req.session.user } ] } , function(requests) {
-            let response = swig.renderFile("views/friends.html", {
-                users: requests
-            })
-            res.send(response)
-        })
+        let criteria = { 
+            email: { $ne: req.session.user } 
+        }
+        let search_param = req.query.semail
+        if (search_param != null && search_param != undefined && search_param != "") {
+            criteria = { 
+                $and: [
+                    { email: { $ne: req.session.user } },
+                    { $or: [
+                        { email: { $regex : ".*" + search_param + ".*" } },
+                        { name: { $regex : ".*" + search_param + ".*" } 
+                    }] 
+                }]                
+            }
+        }
+        var pg = parseInt(req.query.pg)
+        if (req.query.pg == null) {
+            pg = 1
+        }   
+        dbManager.getUsersPg(criteria, pg, function(users, total) {
+            if (users == null) {
+                res.send("Error while retrieving the users") 
+            } else {
+                var pgLast = total / 4
+                if (total%4 > 0) {
+                    pgLast = pgLast + 1
+                }
+                let response = swig.renderFile("views/home.html", {
+                    users: users,
+                    pgCurrent: pg,
+                    pgLast: pgLast
+                })
+                res.send(response)
+            }
+        })        
     })
     app.get("/logout", function(req, res) {
         req.session.user = ""
         res.redirect("/login")
     })
     app.get("/requests", function(req, res) {
-        dbManager.getFriendRequestReceived({}, function(requests) {
+        dbManager.getFriendRequestReceived({ target: req.session.user }, function(requests) {            
             let response = swig.renderFile("views/friendrequests.html", {
                 users: requests
             })
@@ -20,29 +49,84 @@ module.exports = function(app, swig, dbManager) {
         })
     })
     app.get("/requests/:email", function(req, res) {
-        var request = {
-            source: req.params.email,
-            target: req.session.user
+        let criteria = {
+            email: req.params.email
         }
-        dbManager.acceptFriendRequest(request)
-        dbManager.removeFriendRequestReceived(request)
-        res.redirect("/requests")
+        let bname = ""
+        dbManager.getFriends(criteria, function(users) {
+            if (users == null || users.length == 0 || users == undefined) {
+                console.log("error! user is already friend!")    
+                res.redirect("/requests")
+            } else {
+                bname = users[0].name
+                var request = {
+                    sname: req.session.name,
+                    source: req.session.user,
+                    tname: bname,
+                    target: req.params.email
+                }                
+                dbManager.acceptFriendRequest(request)        
+                res.redirect("/requests")
+            }
+        })
     })
     app.get("/home/:email", function(req, res) {
-        var request = {
+        let criteria = {
             source: req.session.user,
             target: req.params.email
         }
-        dbManager.sendFriendRequest(request, function(id) {
-            if (id == null) {
-                // console.log(usuario.email)
-                // console.log(usuario.password)
-                // res.redirect("/registrarse?mensaje=Error al registrar usuario")
-                console.log("Error sending request")
+        dbManager.getRequests(criteria, function(requests) {
+            if (requests == undefined || requests == null || requests.length == 0) {
+                criteria = {
+                    $or: [
+                        { 
+                            source: req.session.user,
+                            target: req.params.email 
+                        },
+                        {
+                            source: req.params.email,
+                            target: req.session.user 
+                        }
+                    ]
+                }
+                dbManager.getFriends(criteria, function(friends) {
+                    criteria = {
+                        email: req.params.email
+                    }
+                    if (friends == undefined || friends == null || friends.length == 0) {
+                        let bname = ""
+                        dbManager.getUsers(criteria, function(users) {
+                            if (users == null || users.length == 0) {
+                            } else {
+                                bname = users[0].name
+                                var request = {
+                                    sname: req.session.name,
+                                    source: req.session.user,
+                                    tname: bname,
+                                    target: req.params.email
+                                }
+                                dbManager.sendFriendRequest(request, function(id) {
+                                    if (id == null) {
+                                        // console.log(usuario.email)
+                                        // console.log(usuario.password)
+                                        // res.redirect("/registrarse?mensaje=Error al registrar usuario")
+                                        console.log("Error sending request")
+                                    } else {
+                                        console.log("Request sended")
+                                        // res.redirect("/identificarse?mensaje=Nuevo usuario registrado")
+                                    }
+                                })
+                            }
+                        })
+                    }  
+                    else {
+                        console.log("error! user is already a friend!")
+                    }   
+                })                   
             } else {
-                console.log("Request sended")
-                // res.redirect("/identificarse?mensaje=Nuevo usuario registrado")
+                console.log("error! friend request already sended!")
             }
+            res.redirect("/home")
         })
     })
     app.get("/register", function (req, res) {
@@ -66,19 +150,20 @@ module.exports = function(app, swig, dbManager) {
                     dbManager.addUser(user, function(id) {
                         if (id == null) {
                             // console.log(usuario.email)
-                            // console.log(usuario.password)
-                            // res.redirect("/registrarse?mensaje=Error al registrar usuario")
+                            // console.log(usuario.password)                            
                             console.log("Error adding user")
                         } else {
                             console.log("User added")
+                            req.session.name = req.body.name
                             req.session.user = req.body.email
-                            // res.redirect("/identificarse?mensaje=Nuevo usuario registrado")
                         }
                     })
                 } else {
                     console.log("email already in use")
                 }
             })
+        } else {
+            res.redirect("/register?msg=Password mismatch.")
         }       
     });
     app.get("/login", function (req, res) {
@@ -108,6 +193,7 @@ module.exports = function(app, swig, dbManager) {
                 // console.log("1 " + users)
                 // console.log("2 " + users[0].email)
                 // console.log("3 " + users[0]._id)
+                req.session.name = users[0].name
                 req.session.user = users[0].email
                 res.redirect("/home")
             }

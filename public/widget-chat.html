@@ -1,0 +1,93 @@
+<div id="widget-chat">
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Sender</th>
+                <th>Receiver</th>
+                <th>Title</th>
+                <th>Content</th>
+            </tr>
+        </thead>
+        <tbody id="bodyTable"></tbody>
+    </table>
+    <div class="form-group">
+        <label class="control-label col-sm-2" for="email">Title:</label>
+        <div class="col-sm-10">
+            <input type="text" class="form-control" name="title" id="title"/>
+        </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-sm-2" for="content">Content:</label> 
+            <div class="col-sm-10"> 
+                <input type="text" class="form-control" name="content" id="content"/> 
+        </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-10">
+                <button type="button"id="button-message">Send</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    window.history.pushState("", "", "/cliente.html?w=chat")
+    $("#button-message").click(function() {
+        $.ajax({
+            url: URLbase + "/message",
+            type: "POST",
+            data: {
+                title: $("#title").val(),
+                content :$("#content").val()
+            },
+            dataType:'json',
+            success:function(res){
+                console.log("message post correctly rest")
+                loadMessages()
+            },
+            error:function(error){
+                console.log("message post error rest")
+            }
+        })
+    })
+    function loadMessages() {
+        $.ajax({
+            url: URLbase + "/messages",
+            type: "GET",
+            data: {},
+            dataType: 'json',
+            headers: {
+                "token": token
+            },
+            success: function (res) {
+                messages = res;
+                updateTable(messages);
+            },
+            error: function (error) {
+                
+            }
+        });
+    }
+    function updateTable(messages) {
+        $("#bodyTable").empty();
+        for (i = 0; i < messages.length; i++) {
+            console.log(i)
+            $("#bodyTable").append(
+                "<tr>" +
+                "<td>" + 
+                    messages[i].sender +
+                "</td>" +
+                "<td>" +    
+                    messages[i].receiver +
+                "</td>" +
+                "<td>" + 
+                    messages[i].title +
+                "</td>" +
+                "<td>" + 
+                    messages[i].content +
+                "</td>" +
+                "</tr>");
+        }
+    }    
+    loadMessages()
+</script>
+

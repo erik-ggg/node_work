@@ -43,4 +43,65 @@ module.exports = function(app, dbManager) {
             }
         })
     })
+    app.get("/api/messages", function(req, res) {
+        console.log(req.session.user)
+        let criteria = {
+            $or: [
+                {  
+                    sender: req.session.user,
+                    receiver: req.session.receiver
+                },
+                {  
+                    sender: req.session.receiver,
+                    receiver: req.session.user
+                }
+            ]}
+        dbManager.getMessages(criteria, function(messages) {
+            res.status(200)
+            res.send(JSON.stringify(messages))
+        })
+    })
+    app.post("/api/message", function(req, res) {
+        let message = {
+            receiver: req.session.receiver,
+            sender: req.session.user,
+            title: req.body.title,
+            content: req.body.content
+        }
+        dbManager.addMessage(message, function(err) {
+            res.status(201)
+            res.json({ 
+                mensaje: "message posted"
+             })
+            // if (err == null) {
+            //     res.status(500)
+            //     res.json({
+            //         error: "error posting the message"
+            //     })
+            // } else {
+            //     res.status(200)
+            // }
+        })
+    })
+    app.get("/api/chat/:email", function(req, res) {
+        console.log("rest mensajes " + req.params.email)
+        let email = req.params.email
+        req.session.receiver = email.replace(":", "")    
+        console.log(req.session.receiver)
+        let criteria = {
+            $or: [
+                {  
+                    sender: req.session.user,
+                    receiver: req.params.email
+                },
+                {  
+                    sender: req.params.email,
+                    receiver: req.session.user
+                }
+            ]}
+        dbManager.getMessages(criteria, function(msgs) {
+            res.status(200)
+            res.send(JSON.stringify(msgs))
+        })        
+    })
 }

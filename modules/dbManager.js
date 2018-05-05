@@ -24,7 +24,26 @@ module.exports = {
             }
         })
     },
-    getUsers : function(criterio, functionCallback) {
+    addMessage : function(message, functionCallback) {
+        this.mongo.MongoClient.connect(this.app.get('db'), function(err, db) {
+            if (err) {
+                console.log("Error " + err)
+                functionCallback(null)
+            } else {
+                var collection = db.collection('messages')
+                collection.insert(message, function(err, result) {
+                    if (err) {
+                        console.log("Error " + err)
+                        functionCallback(null)
+                    } else {
+                        functionCallback(result.ops[0]._id)
+                    }
+                    db.close()
+                })
+            }
+        })
+    },
+    getUsers : function(criteria, functionCallback) {
         console.log("buscando usuarios")
         this.mongo.MongoClient.connect(this.app.get('db'), function(err, db) {
             console.log("conectando...")
@@ -33,7 +52,7 @@ module.exports = {
                 functionCallback(null)
             } else {
                 var collection = db.collection('users')
-                collection.find(criterio).toArray(function(err, result) {
+                collection.find(criteria).toArray(function(err, result) {
                     if (err) {
                         console.log("error al buscar")
                         functionCallback(null)
@@ -49,7 +68,7 @@ module.exports = {
             }
         })
     },
-    getUsersPg : function(criterio, pg, functionCallback) {
+    getUsersPg : function(criteria, pg, functionCallback) {
         console.log("buscando usuarios")
         this.mongo.MongoClient.connect(this.app.get('db'), function(err, db) {
             console.log("conectando...")
@@ -59,7 +78,7 @@ module.exports = {
             } else {
                 var collection = db.collection('users')
                 collection.count(function(err, count) {
-                    collection.find(criterio).skip((pg-1)*4).limit(4).toArray(function(err, result) {
+                    collection.find(criteria).skip((pg-1)*4).limit(4).toArray(function(err, result) {
                         if (err) {
                             console.log("error al buscar")
                             functionCallback(null)
@@ -97,20 +116,26 @@ module.exports = {
     acceptFriendRequest : function(request) {
         this.mongo.MongoClient.connect(this.app.get('db'), function(err, db) {
             if (err) {
-
             } else {
-                //TODO: eliminamos la peticion ya que son amigos
-                var collection = db.collection('friends')
-                collection.insert(request)
+                var collection = db.collection('requests')
+                collection.remove(request, function(err, result) {
+                    if(err) {
+                        console.log("error removing the request")
+                    } else {                        
+                        var collection = db.collection('friends')
+                        collection.insert(request)    
+                    }
+                    db.close()
+                })            
             }
         })
     },
-    getFriendRequestReceived : function(criterio, functionCallback) {
+    getFriendRequestReceived : function(criteria, functionCallback) {
         this.mongo.MongoClient.connect(this.app.get('db'), function(err, db) {
             if (err) {
             } else {
                 var collection = db.collection('requests')
-                collection.find(criterio).toArray(function(err, result) {
+                collection.find(criteria).toArray(function(err, result) {
                     if (err) {
                         console.log("error al buscar")
                         functionCallback(null)
@@ -126,12 +151,12 @@ module.exports = {
             }
         })
     },
-    getFriendRequestSended : function(criterio, functionCallback) {
+    getFriendRequestSended : function(criteria, functionCallback) {
         this.mongo.MongoClient.connect(this.app.get('db'), function(err, db) {
             if (err) { 
             } else {
                 var collection = db.collection('requests')
-                collection.find(criterio).toArray(function(err, result) {
+                collection.find(criteria).toArray(function(err, result) {
                     if (err) {
                         console.log("error al buscar")
                         functionCallback(null)
@@ -146,12 +171,12 @@ module.exports = {
             }
         })
     },
-    getFriends : function(criterio, functionCallback) {
+    getFriends : function(criteria, functionCallback) {
         this.mongo.MongoClient.connect(this.app.get('db'), function(err, db) {
             if (err) {
             } else {
                 var collection = db.collection('friends')
-                collection.find(criterio).toArray(function(err, result) {
+                collection.find(criteria).toArray(function(err, result) {
                     if (err) {
                         console.log("error al buscar")
                         functionCallback(null)
@@ -167,13 +192,56 @@ module.exports = {
             }
         })
     },
+    getRequests : function(criteria, functionCallback) {
+        this.mongo.MongoClient.connect(this.app.get('db'), function(err, db) {
+            if (err) {
+            } else {
+                var collection = db.collection('requests')
+                collection.find(criteria).toArray(function(err, result) {
+                    if (err) {
+                        console.log("error al buscar")
+                        functionCallback(null)
+                    } else if (result.length == 0) {
+                        console.log("sin datos 5")                        
+                        functionCallback(result)
+                    } else {
+                        console.log("founded requests!")
+                        functionCallback(result)
+                    }
+                    db.close()
+                })
+            }
+        })
+    },
+    getMessages : function(criteria, functionCallback) {
+        this.mongo.MongoClient.connect(this.app.get('db'), function(err, db) {
+            if (err) {
+            } else {
+                var collection = db.collection('messages')
+                collection.find(criteria).toArray(function(err, result) {
+                    if (err) {
+                        console.log("error searching messages")
+                        functionCallback(null)
+                    } else if (result.length == 0) {
+                        console.log("not founded messages")                        
+                        functionCallback(result)
+                    } else {
+                        console.log("founded messages!")
+                        functionCallback(result)
+                    }
+                    db.close()
+                })
+            }
+        })
+    },
     removeFriendRequestReceived : function(request) {
         this.mongo.MongoClient.connect(this.app.get('db'), function(err, db) {
             if (err) {
             } else {
                 var collection = db.collection('requests')
                 collection.remove(request)
+                db.close()
             }
-        })
+        })        
     }
 }

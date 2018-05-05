@@ -1,121 +1,75 @@
 <div id="widget-friends">
-        <input type="text" class="form-control" placeholder="Filtrar por nombre" id="filtro-nombre"/>
-        <!-- <button class="btn btn-primary" onclick="widgetAgregar()">Nueva cancion</button> -->
-        <button class="btn" onclick="loadFriends()">Actualizar</button>
-        <table class="table table-hover">
-            <thead>
-                <tr>
-                    <th><a onclick="shortByEmail()">Email</a></th>
-                </tr>
-            </thead>
-            <tbody id="bodyTable"></tbody>
-        </table>
-    </div>
+    <input type="text" class="form-control" placeholder="Filtrar por nombre" id="filtro-nombre"/>
+    <!-- <button class="btn btn-primary" onclick="widgetAgregar()">Nueva cancion</button> -->
+    <button class="btn" onclick="loadFriends()">Actualizar</button>
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th><a>Name</a></th>
+                <th><a onclick="shortByEmail()">Email</a></th>
+            </tr>
+        </thead>
+        <tbody id="bodyTable"></tbody>
+    </table>
+</div>
     
-    <script>
-        window.history.pushState("", "", "/cliente.html?w=friends")
-        var friends;
-    
-        function loadFriends() {
-            console.log("rest loading friends...")
-            console.log(token)
-            $.ajax({
-                url: URLbase + "/friends",
-                type: "GET",
-                data: {},
-                dataType: 'json',
-                headers: {
-                    "token": token
-                },
-                success: function (res) {
-                    friends = res;
-                    updateTable(friends);
-                },
-                error: function (error) {
-                    $("#main-container").load("widget-login.html");
-                }
-            });
-        }
-    
-        function updateTable(friends) {
-            $("#bodyTable").empty(); // Vaciar la tabla
-            for (i = 0; i < friends.length; i++) {
-                console.log(i)
-                $(
-                    "#bodyTable").append(
-                    "<tr id=" + friends[i]._id + ">" +
-                    "<td>" + friends[i].source + "</td>" +
-                    "<td>" +
-                    "<a onclick=detalles('" + friends[i]._id + "')>Detalles</a><br>" +
-                    "<a onclick=eliminar('" + friends[i]._id + "')>Eliminar</a>" +
-                    "</td>" +
-                    "</tr>");
-                // Mucho cuidado con las comillas del eliminarCancion 
-                //la id tiene que ir entre comillas ' ' 
+<script>
+    window.history.pushState("", "", "/cliente.html?w=friends")
+    var friends;
+
+    function loadFriends() {
+        console.log("rest loading friends...")
+        console.log(token)
+        $.ajax({
+            url: URLbase + "/friends",
+            type: "GET",
+            data: {},
+            dataType: 'json',
+            headers: {
+                "token": token
+            },
+            success: function (res) {
+                friends = res;
+                updateTable(friends);
+            },
+            error: function (error) {
+                $("#main-container").load("widget-login.html");
             }
+        });
+    }
+
+    function updateTable(friends) {
+        $("#bodyTable").empty(); // Vaciar la tabla
+        for (i = 0; i < friends.length; i++) {
+            console.log(i)
+            $("#bodyTable").append(
+                "<tr>" +
+                "<td>" + 
+                    "<a onclick=chat('" + friends[i].target + "')>" + friends[i].tname + "</a>" +
+                "</td>" +
+                "<td>" + friends[i].target + "</td>" +
+                "</tr>");
         }
-    
-        // function eliminar(_id) {
-        //     $.ajax({
-        //         url: URLbase +
-        //             "/cancion/" +
-        //             _id,
-        //         type: "DELETE",
-        //         data: {},
-        //         dataType: 'json',
-        //         headers: {
-        //             "token": token
-        //         },
-        //         success: function (res) {
-        //             console.log(
-        //                 "Eliminada: " +
-        //                 _id);
-        //             $(
-        //                 "#" +
-        //                 _id).remove();
-        //             // eliminar el <tr> de la canción
-        //         },
-        //         error: function (error) {
-        //             $(
-        //                 "#main-container "
-        //             ).load("widget-login.html "
-        //             );
-        //         }
-        //     });
-        // }
-    
-        // function widgetAgregar() {
-        //     $("#main-container").load("widget-agregar.html")
-        // }
-    
-        // $('#filtro-nombre').on('input',function(e){
-        //     var friendsFiltradas =[];
-        //     var nombreFiltro =$("#filtro-nombre").val();
-        //     for(i = 0;i <friends.length;i++){
-        //         if(friends[i].nombre.indexOf(nombreFiltro)!=-1){
-        //             friendsFiltradas.push(friends[i]);
-        //         }
-        //     }
-        //     updateTable(friendsFiltradas);
-        // });
-    
-        // function ordenarPorPrecio(){
-        //     friends.sort(function(a,b){
-        //         if(parseFloat(a.precio)>parseFloat(b.precio)) return-1;
-        //         if(parseFloat(a.precio)<parseFloat(b.precio)) return 1;
-        //         return 0
-        //         // Dependiendo de retorno >0 =0 o <0
-        //     });
-        //     updateTable(friends);
-        // }
-        // function ordenarPorNombre(){
-        //     friends.sort(function(a,b){
-        //         if(a.nombre>b.nombre) return 1;
-        //         if(a.nombre<b.nombre)return-1; 
-        //         return 0;
-        //     });
-        //     updateTable(friends);
-        // }
-    
-        loadFriends();
-    </script>
+    }
+
+    function chat(email) {
+        $.ajax({
+            url: URLbase + "/chat/:" + email,
+            type: "GET",
+            data: {},
+            dataType: 'json',
+            headers: {
+                "token": token
+            },
+            success: function(res) {
+                console.log("res mesages: correct")
+                $("#main-container").load("widget-chat.html")
+            }, 
+            error: function(err) {
+                console.log("res mesages: error")
+                $("#widget-home").prepend("<div class='alert alert-danger'>Error loading the chat</div>")
+            }
+        })
+    }
+    loadFriends();
+</script>

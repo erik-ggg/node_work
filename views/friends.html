@@ -11,10 +11,13 @@
             {% for user in users %}
             <tr>
                 <td>
-                    {{ user.source }}
+                    {{ user.tname }}
+                </td>    
+                <td>
+                    {{ user.target }}
                 </td>
                 <td>
-                        <a class="btn btn-primary" href="/remove/{{ user.source.toString() }}">Remove friend</a>
+                    <a class="btn btn-primary" href="/remove/{{ user.source.toString() }}">Remove friend</a>
                 </td>
             </tr>
             {% endfor %}
