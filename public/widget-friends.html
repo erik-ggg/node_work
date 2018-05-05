@@ -1,6 +1,5 @@
 <div id="widget-friends">
-    <input type="text" class="form-control" placeholder="Filtrar por nombre" id="filtro-nombre"/>
-    <!-- <button class="btn btn-primary" onclick="widgetAgregar()">Nueva cancion</button> -->
+    <input type="text" class="form-control" placeholder="Filtrar by name" id="filter-name"/>
     <button class="btn" onclick="loadFriends()">Actualizar</button>
     <table class="table table-hover">
         <thead>
@@ -16,6 +15,17 @@
 <script>
     window.history.pushState("", "", "/cliente.html?w=friends")
     var friends;
+
+    $('#filter-name').on('input',function(e){
+        var friendsFiltered =[];
+        var filter =$("#filter-name").val();
+        for(i = 0;i <friends.length;i++){
+            if(friends[i].tname.indexOf(filter)!=-1){
+                friendsFiltered.push(friends[i]);
+            }
+        }
+        updateTable(friendsFiltered);
+    });
 
     function loadFriends() {
         console.log("rest loading friends...")

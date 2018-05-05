@@ -66,7 +66,8 @@ module.exports = function(app, dbManager) {
             receiver: req.session.receiver,
             sender: req.session.user,
             title: req.body.title,
-            content: req.body.content
+            content: req.body.content,
+            readed: false,
         }
         dbManager.addMessage(message, function(err) {
             res.status(201)
