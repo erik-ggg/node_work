@@ -184,6 +184,7 @@ module.exports = function(app, swig, dbManager) {
                             console.log("User added")
                             req.session.name = req.body.name
                             req.session.user = req.body.email
+                            res.redirect("/home")
                         }
                     })
                 } else {

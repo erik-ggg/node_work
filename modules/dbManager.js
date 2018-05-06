@@ -78,7 +78,7 @@ module.exports = {
             } else {
                 var collection = db.collection('users')
                 collection.count(function(err, count) {
-                    collection.find(criteria).skip((pg-1)*4).limit(4).toArray(function(err, result) {
+                    collection.find(criteria).skip((pg-1)*5).limit(5).toArray(function(err, result) {
                         if (err) {
                             console.log("error al buscar")
                             functionCallback(null)
@@ -136,7 +136,7 @@ module.exports = {
             } else {
                 var collection = db.collection('friends')
                 collection.count(function(err, count) {
-                    collection.find(criteria).skip((pg-1)*4).limit(4).toArray(function(err, result) {
+                    collection.find(criteria).skip((pg-1)*5).limit(5).toArray(function(err, result) {
                         if (err) {
                             console.log("error searching friend requests!")
                             functionCallback(null)
@@ -159,7 +159,7 @@ module.exports = {
             } else {
                 var collection = db.collection('requests')
                 collection.count(function(err, count) {
-                    collection.find(criteria).skip((pg-1)*4).limit(4).toArray(function(err, result) {
+                    collection.find(criteria).skip((pg-1)*5).limit(5).toArray(function(err, result) {
                         if (err) {
                             console.log("error searching friend requests!")
                             functionCallback(null)
