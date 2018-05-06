@@ -130,23 +130,48 @@ module.exports = {
             }
         })
     },
-    getFriendRequestReceived : function(criteria, functionCallback) {
+    getFriendsPg : function(criteria, pg, functionCallback) {
+        this.mongo.MongoClient.connect(this.app.get('db'), function(err, db) {
+            if (err) {
+            } else {
+                var collection = db.collection('friends')
+                collection.count(function(err, count) {
+                    collection.find(criteria).skip((pg-1)*4).limit(4).toArray(function(err, result) {
+                        if (err) {
+                            console.log("error searching friend requests!")
+                            functionCallback(null)
+                        } else if (result.length == 0) {
+                            console.log("not founded friends!")
+                            functionCallback(result, count)
+                        } else {
+                            console.log("founded friends!")
+                            functionCallback(result, count)
+                        }
+                        db.close()
+                    })
+                })
+            }
+        })
+    },
+    getFriendRequestReceivedPg : function(criteria, pg, functionCallback) {
         this.mongo.MongoClient.connect(this.app.get('db'), function(err, db) {
             if (err) {
             } else {
                 var collection = db.collection('requests')
-                collection.find(criteria).toArray(function(err, result) {
-                    if (err) {
-                        console.log("error al buscar")
-                        functionCallback(null)
-                    } else if (result.length == 0) {
-                        console.log("sin datos 3")
-                        functionCallback(result)
-                    } else {
-                        console.log("encontro usuarios")
-                        functionCallback(result)
-                    }
-                    db.close()
+                collection.count(function(err, count) {
+                    collection.find(criteria).skip((pg-1)*4).limit(4).toArray(function(err, result) {
+                        if (err) {
+                            console.log("error searching friend requests!")
+                            functionCallback(null)
+                        } else if (result.length == 0) {
+                            console.log("not founded friend requests!")
+                            functionCallback(result, count)
+                        } else {
+                            console.log("founded friend requests!")
+                            functionCallback(result, count)
+                        }
+                        db.close()
+                    })
                 })
             }
         })

@@ -19,7 +19,7 @@ module.exports = function(app, swig, dbManager) {
         if (req.query.pg == null) {
             pg = 1
         }   
-        dbManager.getUsersPg(criteria, pg, function(users, total) {
+        dbManager.getFriendsPg(criteria, pg, function(users, total) {
             if (users == null) {
                 res.send("Error while retrieving the users") 
             } else {
@@ -27,7 +27,7 @@ module.exports = function(app, swig, dbManager) {
                 if (total%4 > 0) {
                     pgLast = pgLast + 1
                 }
-                let response = swig.renderFile("views/home.html", {
+                let response = swig.renderFile("views/friends.html", {
                     users: users,
                     pgCurrent: pg,
                     pgLast: pgLast
@@ -41,31 +41,59 @@ module.exports = function(app, swig, dbManager) {
         res.redirect("/login")
     })
     app.get("/requests", function(req, res) {
-        dbManager.getFriendRequestReceived({ target: req.session.user }, function(requests) {            
+        var pg = parseInt(req.query.pg)
+        if (req.query.pg == null) {
+            pg = 1
+        }  
+        dbManager.getFriendRequestReceivedPg({ target: req.session.user }, pg, function(requests, total) {            
+            var pgLast = total / 4
+            if (total%4 > 0) {
+                pgLast = pgLast + 1
+            }
             let response = swig.renderFile("views/friendrequests.html", {
-                users: requests
+                users: requests,
+                pgCurrent: pg,
+                pgLast: pgLast
             })
             res.send(response)
-        })
+        }) 
     })
     app.get("/requests/:email", function(req, res) {
         let criteria = {
-            email: req.params.email
+            $or: [
+                {  
+                    sender: req.session.user,
+                    receiver: req.params.email
+                },
+                {  
+                    sender: req.params.email,
+                    receiver: req.session.user
+                }
+            ]
         }
         let bname = ""
         dbManager.getFriends(criteria, function(users) {
             if (users == null || users.length == 0 || users == undefined) {
-                console.log("error! user is already friend!")    
-                res.redirect("/requests")
+                criteria = {
+                    email: req.params.email
+                }
+                dbManager.getUsers(criteria, function(user) {
+                    if (user == null || user.length == 0 || user == undefined) {
+                        console.log("error! user with email " + req.params.email + " not found")
+                    } else {
+                        bname = user[0].name
+                        var request = {
+                            sname: bname,
+                            source: req.params.email,
+                            tname: req.session.name,
+                            target: req.session.user
+                        }
+                        dbManager.acceptFriendRequest(request)        
+                        res.redirect("/requests")
+                    }
+                })                
             } else {
-                bname = users[0].name
-                var request = {
-                    sname: req.session.name,
-                    source: req.session.user,
-                    tname: bname,
-                    target: req.params.email
-                }                
-                dbManager.acceptFriendRequest(request)        
+                console.log("error! user is already friend!")    
                 res.redirect("/requests")
             }
         })

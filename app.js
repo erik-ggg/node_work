@@ -37,6 +37,7 @@ routerLoggedUser.use(function(req, res, next) {
 var routerUsuarioToken = express.Router()
 routerUsuarioToken.use(function(req, res, next) {
     var token = req.body.token || req.query.token || req.headers["token"]
+    console.log("rest current token: " + token)
     if (token != null) {
         jwt.verify(token, "secreto", function(err, infoToken) {
             if (err || (Date.now()/1000 - infoToken.tiempo) > 240) {
@@ -62,7 +63,9 @@ routerUsuarioToken.use(function(req, res, next) {
 
 app.use("/home", routerLoggedUser)
 app.use("/requests", routerLoggedUser)
+app.use("/friends", routerLoggedUser)
 app.use("/api/friends", routerUsuarioToken)
+app.use("/api/messages", routerUsuarioToken)
 
 require("./routes/rusuarios")(app, swig, dbManager)
 require("./routes/rapiusuarios")(app, dbManager)
