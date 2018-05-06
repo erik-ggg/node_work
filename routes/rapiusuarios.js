@@ -30,7 +30,17 @@ module.exports = function(app, dbManager) {
     app.get("/api/friends", function(req, res) {
         console.log("rest searching friends...")
         // dbManager.getFriends( { $or: [ { source: req.session.user }, { target: req.session.user } ] }, function(friends) {
-        dbManager.getFriends( {}, function(friends) {
+        let criteria = { 
+            $or: [
+                {
+                    source: req.session.user
+                },
+                {
+                    target: req.session.user
+                }
+            ]
+        }
+        dbManager.getFriends( criteria, function(friends) {
             if (friends == null) {
                 console.log("rest error searching friends")
                 res.status(500)
@@ -38,6 +48,12 @@ module.exports = function(app, dbManager) {
                     error: "se ha producido un error"
                 })
             } else {
+                for (let i = 0; i < friends.length; i++) {
+                    console.log(friends[i])
+                    if (friends[i].target == req.session.user) {
+                        friends[i].target = friends[i].source
+                    }
+                }
                 res.status(200)
                 res.send(JSON.stringify(friends))
             }
@@ -74,14 +90,6 @@ module.exports = function(app, dbManager) {
             res.json({ 
                 mensaje: "message posted"
              })
-            // if (err == null) {
-            //     res.status(500)
-            //     res.json({
-            //         error: "error posting the message"
-            //     })
-            // } else {
-            //     res.status(200)
-            // }
         })
     })
     app.get("/api/chat/:email", function(req, res) {

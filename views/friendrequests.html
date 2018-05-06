@@ -5,6 +5,7 @@
         <thead>
             <tr>
                 <th>User</th>
+                <th>Email</th>
             </tr>
         </thead>
         <tbody>
@@ -17,7 +18,7 @@
                     {{ user.source }}
                 </td>
                 <td>
-                        <a class="btn btn-primary" href="/requests/{{ user.source.toString() }}">Accept</a>
+                    <a class="btn btn-primary" id="{{user.source}}" href="/requests/{{ user.source.toString() }}">Accept</a>
                 </td>
             </tr>
             {% endfor %}
