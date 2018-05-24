@@ -1,28 +1,30 @@
 module.exports = function(app, swig, dbManager) {
     app.get("/friends", function(req, res) {
         let criteria = { 
-            email: { $ne: req.session.user } 
-        }
-        let search_param = req.query.semail
-        if (search_param != null && search_param != undefined && search_param != "") {
-            criteria = { 
-                $and: [
-                    { email: { $ne: req.session.user } },
-                    { $or: [
-                        { email: { $regex : ".*" + search_param + ".*" } },
-                        { name: { $regex : ".*" + search_param + ".*" } 
-                    }] 
-                }]                
-            }
+            $or: [
+                {
+                    source: req.session.user
+                },
+                {
+                    target: req.session.user
+                }
+            ]
         }
         var pg = parseInt(req.query.pg)
         if (req.query.pg == null) {
             pg = 1
         }   
         dbManager.getFriendsPg(criteria, pg, function(users, total) {
-            if (users == null) {
+            console.log("users " + users)
+            if (users == null) {                
                 res.send("Error while retrieving the users") 
             } else {
+                for (let i = 0; i < users.length; i++) {
+                    console.log(users[i])
+                    if (users[i].target == req.session.user) {
+                        users[i].target = users[i].source
+                    }
+                }
                 var pgLast = total / 4
                 if (total%4 > 0) {
                     pgLast = pgLast + 1
@@ -192,7 +194,7 @@ module.exports = function(app, swig, dbManager) {
                 }
             })
         } else {
-            res.redirect("/register?msg=Password mismatch.")
+            res.redirect("/register?msg=Password mismatch" + "&msgType=alert-danger")
         }       
     });
     app.get("/login", function (req, res) {
@@ -216,6 +218,7 @@ module.exports = function(app, swig, dbManager) {
                 // req.session.usuario = null
                 // res.redirect("/identificarse" + "?mensaje=Email o password incorrecto" + "&tipoMensaje=alert-danger") 
                 console.log("error al logear")
+                res.redirect("/login?msg=Error login" + "&msgType=alert-danger")
             } else {
                 // req.session.usuario = users[0].email
                 // res.redirect("/publicaciones")

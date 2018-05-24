@@ -1,6 +1,7 @@
 {% extends "base.html" %} 
 {% block contenido_principal %}
-	<div>
+<body>
+    <div>
         <a class="btn btn-primary" href="/requests">Request received</a>
         <a class="btn btn-primary" href="/friends">Friends</a>
         <a class="btn btn-primary" href="/logout">Log out</a>
@@ -12,7 +13,7 @@
                             <input type="text" class="search-query form-control"
                                 placeholder="User or email" name="semail"/>
                                 <span class="input-group-btn">
-                                <button class="btn" type="submit">
+                                <button class="btn" id="searchText" type="submit">
                                     <span class="glyphicon glyphicon-search"></span>
                                 </button>
                             </span>
@@ -36,7 +37,7 @@
 						{{ user.email }}
 					</td>
 					<td>
-						<a class="btn btn-primary" href="/home/{{ user.email.toString()}}">Send friend request</a>
+						<a class="btn btn-primary" id="{{user.email}}" href="/home/{{ user.email.toString()}}">Send friend request</a>
 					</td>
 				</tr>
 				{% endfor %}
@@ -67,4 +68,5 @@
             <a class="page-link"href="/home?pg={{ pgLast }}">Última</a>
         </li>
     </ul>
+</body>
 {% endblock %}
